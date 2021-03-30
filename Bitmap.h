@@ -434,7 +434,7 @@ BMPError Bitmap<Pixel>::create(const uint64_t width, const uint64_t height)
     dib.height = height;
     dib.width = width;
     dib.color_planes = 1;
-    dib.bbp = 8 * sizeof(Pixel);
+    dib.bbp = static_cast<Bitmap::BitsPerPixel>(8 * sizeof(Pixel));
     dib.compression = Bitmap::Compression::BI_RGB;
     dib.n_colors = 0;
     dib.icolors = 0;

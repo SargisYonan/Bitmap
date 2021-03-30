@@ -25,5 +25,9 @@ int main(void)
     }
     bmp.write("testtest.bmp");
 
+    Bitmap<Pixel::BGR24> bmp2;
+    bmp2.create(1024,1024);
+    bmp2.write("writetest.bmp");
+
     return 0;
 }
