@@ -21,7 +21,7 @@
 namespace Pixel
 {
     /*!
-     * @struct Pixel24Bit
+     * @struct BGR24
      * @brief Definition of a 24-bit pixel.
      * 
      * @field b The blue color for the pixel.
@@ -30,7 +30,7 @@ namespace Pixel
      */
     #pragma pack(push)  /* push current alignment to stack */
     #pragma pack(1)     /* set alignment to 4 byte boundary */
-    struct RGB24
+    struct BGR24
     {
         uint8_t b;
         uint8_t g;
@@ -39,8 +39,8 @@ namespace Pixel
     #pragma pack(pop)
 
     /*!
-     * @struct Pixel24Bit
-     * @brief Definition of a 24-bit pixel.
+     * @struct BGR32
+     * @brief Definition of a 32-bit pixel.
      * 
      * @field b     The blue color for the pixel.
      * @field g     The green color for the pixel.
@@ -49,7 +49,7 @@ namespace Pixel
      */
     #pragma pack(push)  /* push current alignment to stack */
     #pragma pack(4)     /* set alignment to 4 byte boundary */
-    struct RGB32
+    struct BGR32
     {
         uint8_t b;
         uint8_t g;

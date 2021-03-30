@@ -4,7 +4,7 @@
 
 int main(void)
 {
-    Bitmap<Pixel::RGB24> bmp;
+    Bitmap<Pixel::BGR24> bmp;
     bmp.load("bmp_24.bmp");
     BMPError err;
 
@@ -12,7 +12,7 @@ int main(void)
     {
         for (int j = 0; j < bmp.height(); j++)
         {
-            Pixel::RGB24 p;
+            Pixel::BGR24 p;
             bmp.get(i, j, p);
             p.r = 0;
 
