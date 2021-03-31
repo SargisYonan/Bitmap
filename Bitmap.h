@@ -74,8 +74,20 @@ enum BMPError : int32_t
     BMP_BAD_INPUT       = 0xE009,
 };
 
+/*!
+ * @constant DEFAULT_DPI
+ * @brief The default DPI value to use when writing Bitmap images.
+ */
 #define DEFAULT_DPI (72U)
 
+/*!
+ * @class Bitmap
+ * @brief Object for loading, manipulating, and writing Bitmap images.
+ * 
+ * @discussion This implementation supports BITMAPINFOHEADER DIB headers only.
+ *
+ * @tparam Pixel The type of the pixel to use. See Pixel namespace for pixel type definitions.
+ */
 template <typename Pixel>
 class Bitmap
 {
@@ -306,41 +318,164 @@ class Bitmap
     };
 
 public:
+    /*! 
+     * Constructor
+     * @param[in] _dpi Dots per pixel in inches per metre
+     */
     Bitmap(const uint32_t _dpi = DEFAULT_DPI) : loaded(false), dpi(_dpi) {}
+    
+    /*! 
+     * Destructor
+     */
     ~Bitmap();
 
+    /*!
+     * @function load
+     * @brief Load a Bitmap file into program memory. 
+     * 
+     * @discussion The loaded file is the object file of this instance.
+     *
+     * @param[in] filename The name of th file to load.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError load(const char * const filename);
 
+    /*!
+     * @function create
+     * @brief Create a new blank Bitmap image.
+     *
+     * @param[in] filename The name of the file to load.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError create(const uint64_t width, const uint64_t height);
 
+    /*!
+     * @function write
+     * @brief Write the currently loaded file to the filesystem.
+     *
+     * @param[in] filename The name of the file to write to.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError write(const char * const filename);
 
+    /*!
+     * @function width
+     * @brief Get the width of the currently loaded image.
+     *
+     * @return The image width. BMP_NOTINIT if not loaded.
+     */
     int32_t width() const;
+
+    /*!
+     * @function height
+     * @brief Get the height of the currently loaded image.
+     *
+     * @return The image height. BMP_NOTINIT if not loaded.
+     */
     int32_t height() const;
     
+    /*!
+     * @function get
+     * @brief Get the pixel value at a given coordinate.
+     *
+     * @param[in]  row   The row coordinate to pull from.
+     * @param[in]  col   The column coordinate to pull from.
+     * @param[out] pixel The pixel at @p row @p col.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError get(const uint32_t row, const uint32_t col, Pixel &pixel) const;
+
+    /*!
+     * @function set
+     * @brief Set the pixel value at a given coordinate.
+     *
+     * @param[in] row   The row coordinate to set.
+     * @param[in] col   The column coordinate to set.
+     * @param[in] pixel The pixel at @p row @p col.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError set(const uint64_t row, const uint64_t col, Pixel &pixel);
 
+    /*!
+     * @function WriteHeaderRsvd
+     * @brief Write to the reserved metadata field of the Bitmap file header.
+     *
+     * @param[in] data The 4B of data to write.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError WriteHeaderRsvd(const uint8_t data[4]);
+    
+    /*!
+     * @function ReadHeaderRsvd
+     * @brief Read the reserved metadata field of the Bitmap file header.
+     *
+     * @param[out] data The 4B of data read from the reserved bytes.
+     *
+     * @return BMP_SUCCESS upon sucess, else relevant @p BMPError status.
+     */
     BMPError ReadHeaderRsvd(uint8_t data[4]) const;
 
 protected:
+    /*!
+     * @inline pixel_index
+     * @brief Get the 1-Dimensional array offset of @p pixel_array from 2-Dimensional coordinates.
+     *
+     * @param[in] row The row coordinate.
+     * @param[in] col The column coordinate.
+     *
+     * @return The 2D --> 1D pixel map.
+     */
     inline uint64_t pixel_index(const int32_t row, const int32_t col) const 
     { 
         return row + (col * dib.width); 
     }
+
+    /*!
+     * @inline pixel_max
+     * @brief Get the max number of the pixel data array.
+     *
+     * @return The number of pixels.
+     */
     inline uint64_t pixel_max() const 
     { 
         return dib.width * dib.height; 
     }
     
+    /*!
+     * @var pixel_array
+     * @brief A pointer to the internal pixel data of the Bitmap image.
+     */
     Pixel *pixel_array;
+
+    /*!
+     * @var loaded
+     * @brief A flag to indicate that a Bitmap image has been loaded by this instance.
+     */
     bool loaded;
 
 private:
+    /*!
+     * @var dib
+     * @brief The Device Independent header for this Bitmap image.
+     */
     BitmapInfoHeader dib;
+    
+    /*!
+     * @var file_header
+     * @brief The file header for this Bitmap image.
+     */
     FileHeader file_header;
 
+    /*!
+     * @var dpi
+     * @brief Dots per inch setting for this instance.
+     */
     uint32_t dpi;
 }; /* class Bitmap<> */
 
@@ -401,6 +536,9 @@ BMPError Bitmap<Pixel>::load(const char * const filename)
     {
         return BMP_INVALID_DIB;
     }
+
+    // Assuming dib.vres == dib.hres
+    dpi = dib.hres;
 
     pixel_array = new Pixel[dib.width * dib.height];
     if (!pixel_array)
@@ -535,7 +673,7 @@ int32_t Bitmap<Pixel>::width() const
         return dib.width;
     }
 
-    return 0;
+    return BMP_NOTINIT;
 }
 
 template <typename Pixel>
@@ -546,7 +684,7 @@ int32_t Bitmap<Pixel>::height() const
         return dib.width;
     }
 
-    return 0;
+    return BMP_NOTINIT;
 }
 
 template <typename Pixel>
